@@ -33,8 +33,8 @@ class main_opstate:
 
     def __init__(self, interval):
         self.INTERVAL = interval
-        self.SEC_INTVL = (60 / self.INTERVAL)-1
-        self.MIN_INTVL = 9
+        self.SEC_INTVL = (60 / self.INTERVAL)
+        self.MIN_INTVL = 10
         self.sec_table = []
         self.min_table = []
         self.cnt = psutil.cpu_count()
