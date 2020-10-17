@@ -7,7 +7,6 @@ if __name__ == "__main__":
     cPath = getPath()
     
     myDir = cPath.getDir()
-
     myFullPath = cPath.getFileFullPath()
     myFileName = cPath.getFileName()
 

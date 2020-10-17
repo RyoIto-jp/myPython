@@ -8,6 +8,7 @@ MySQLへINSERTする。
 from pprint import pprint as pp
 import func_mysql
 import datetime
+from module.getPath import getPath  # Path取得クラス
 
 
 def getText(f_path, sql_statement):
@@ -28,12 +29,13 @@ def getText(f_path, sql_statement):
 
 if __name__ == "__main__":
     # Init Variables
-    # Set Const
     data_row = []
+    # Set Const
+    cPath = getPath()
+    loadText = cPath.getFileFullPath()
     record_time = datetime.datetime.now().strftime("%Y/%m/%d-%H:%M:%S")
     sql_statement = 'INSERT INTO `disk_size` ( `record_time`,'
-    sql_statement = getText(
-        "C:\\gitwork\\24_DiskSize_ACS\\ShareStatus20200907.txt", sql_statement)
+    sql_statement = getText( loadText, sql_statement)
 
     mysql = func_mysql.mysql('172.16.77.103', '3306',
                              'aisan', 'aisan', 'manage_app')

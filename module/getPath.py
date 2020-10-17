@@ -10,20 +10,22 @@ class getPath:
         self.ini_dir = os.getcwd()  # os.path.dirname(os.path.abspath(__file__))
 
     def getDir(self):
-
         dialog = wx.DirDialog(None, u'フォルダを選択してください', defaultPath=self.ini_dir) 
-        dialog.ShowModal()  # フォルダ選択ダイアログを表示
-
-        return dialog.Path
+        if dialog.ShowModal() == wx.ID_CANCEL:
+            wx.MessageBox(u'ファイルが選択されていません。\n処理を中断します。', u'ファイル選択エラー')
+            os._exit(0)
+        return dialog.GetPath()
 
     def getFilePath(self):
-
-        filter = "python file(*.py;*.pyw) | *.py;*.pyw | All file(*.*) | *.*"
+        filter = "text file(*.txt) | *.txt; | python file(*.py;*.pyw) | *.py;*.pyw | All file(*.*) | *.*"
         dialog = wx.FileDialog(
             None, u'ファイルを選択してください', self.ini_dir, '', filter)
-        dialog.ShowModal()  # フォルダ選択ダイアログを表示
-
-        self.myPath =  dialog.Path
+        
+        if dialog.ShowModal() == wx.ID_CANCEL:
+            wx.MessageBox(u'ファイルが選択されていません。\n処理を中断します。', u'ファイル選択エラー')
+            os._exit(0)
+        self.myPath = dialog.GetPath()
+            
 
     def getFileFullPath(self):
         self.getFilePath()

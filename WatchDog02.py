@@ -11,23 +11,14 @@ https://skill-sharing.info/archives/143
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import os
-
-#待機
 import time
+from module.getPath import getPath #Path取得クラス
 
-#Select Dir
-from tkinter import filedialog
-
-# ハッシュ比較用
 import hashlib
 hashes = {}
 
-#ファイル・フォルダ監視用
-
-
 #イベントハンドラ
 class ChangeHandler(FileSystemEventHandler):
-
     #ファイルやフォルダが作成された場合
     def on_created(self, event):
         filepath = event.src_path
@@ -56,7 +47,6 @@ class ChangeHandler(FileSystemEventHandler):
                       " " + filename + " を変更しました。(NoChkHsh)")
 
     #ファイルやフォルダが移動された場合
-
     def on_moved(self, event):
         filepath = event.src_path
         filename = os.path.basename(filepath)
@@ -79,19 +69,9 @@ if __name__ == '__main__':
     #起動ログ
     print('フォルダ・ファイル監視スクリプトを起動します。')
 
-    #現在のフォルダパスを取得する(プログラムが実行されているフォルダパス)
-    # current_directory = os.path.dirname(os.path.abspath(__file__))
-
-    # 指定したフォルダパスを取得する。
-    import wx
-
-    app = wx.App()
-    ini_dir = os.path.dirname(os.path.abspath(__file__))
-    dialog = wx.DirDialog(None, u'フォルダを選択してください',
-                          defaultPath=ini_dir)  # フォルダ選択ダイアログを作成
-    dialog.ShowModal()  # フォルダ選択ダイアログを表示
-    myDir = dialog.Path
-
+    #Pathの取得
+    cPath = getPath()
+    myDir = cPath.getDir()
     print('監視フォルダを' + myDir + 'に設定します')
 
     #インスタンス作成
