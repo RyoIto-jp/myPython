@@ -44,6 +44,19 @@ class mysql:
 
         self.sql_exec()
 
+    def debug_sql_insert(self, sql_dict, TBL_NAME):
+        sql_key = ""
+        sql_val = ""
+        for x in sql_dict.keys():
+            sql_key += '{0}, '.format(x)
+            sql_val += "'{0}',".format(sql_dict[x])
+        # print(sql_key)
+        sql_key = sql_key[:-2]
+        sql_val = sql_val[:-1].replace(" ", "")
+        self.sql = 'INSERT INTO `{0}` ({1}) VALUES ({2})'.format(
+            TBL_NAME, sql_key, sql_val)
+
+
     def mult_insert(self, sql_statement, TBL_NAME):
 
         self.sql_conn()

@@ -5,12 +5,14 @@ from platform import platform
 from win32api import GetTickCount, GetLastInputInfo
 import time
 import threading
-from pprint import pprint
+
 import numpy as np
 import datetime
 import func_mysql
 import func_InsApp
 
+#debug
+from pprint import pprint as pp
 
 class main_opstate:
     """PCモニタアプリの本体部分
@@ -31,12 +33,13 @@ class main_opstate:
 
     def __init__(self, interval):
         self.INTERVAL = interval
-        self.SEC_INTVL = 59
+        self.SEC_INTVL = (60 / self.INTERVAL)-1
         self.MIN_INTVL = 9
         self.sec_table = []
         self.min_table = []
+        self.cnt = psutil.cpu_count()
         self.mysql = func_mysql.mysql(
-            'lasv07-con', '3307', 'aisan', 'aisan', 'admin_pc_usage')
+            'localhost', '3306', 'root', 'root', 'admin_pc_usage')
 
     def scheduler(self, f, wait=True):
         """定期実行用のスケジューラ
@@ -122,7 +125,7 @@ class main_opstate:
         dic_num = len(self.sec_table)
         sec_row = self.get_state()
         dic_row = {str(dic_num): sec_row}
-        pprint(dic_row)
+        # pprint(dic_row)
         try:    # not first
             self.sec_table.update(dic_row)
         except:  # For first
@@ -153,7 +156,7 @@ class main_opstate:
             """
         out_dic = self.record_table(self.sec_table, self.min_table)
         self.min_table = out_dic
-        pprint(self.min_table)
+        pp(self.min_table)
 
     def record_min10(self):
         """10分毎の処理
@@ -177,7 +180,46 @@ class main_opstate:
         # calc no_operation
         sql_dict['no_operation'] = datetime.timedelta(
             seconds=sql_dict['no_operation'] * 600)
+        
+        proc_json = self.procList()
+        if proc_json:
+            proc_dict = {'procList': proc_json}
+            sql_dict.update(proc_dict)
         return sql_dict
+
+    def procList(self):
+        flg = 0
+        pp_vals = []
+        for x in psutil.process_iter({'cpu_percent', 'memory_info', 'name', 'username'}):
+            if x.info['cpu_percent'] > 0.1 * self.cnt and x.info['username'] is not None:
+                if 'adex' in x.info['username'] or 'yon2mk23' in x.info['username']:
+                    if len(pp_vals) > 0:
+                        for row in pp_vals.keys():
+                            if not x.info['name'] is None:
+                                if x.info['name'][:-4] in row:
+                                    pp_vals[x.info['name'][:-4]]['cpu'] = round(
+                                        float(pp_vals[x.info['name'][:-4]]['cpu']) + float(x.info['cpu_percent']), 1)
+                                    flg = 1
+                    if flg == 0:
+                        s_key = ["cpu", "mem"]
+                        s_val = round(
+                            x.info['cpu_percent']/self.cnt, 1), round(x.info['memory_info'].rss/1024/1024, 1)
+                        n_key = [x.info['name'][:-4]]
+                        n_val = [dict(zip(s_key, s_val))]
+                        pp_val = dict(zip(n_key, n_val))
+                        try:
+                            pp_vals.update(pp_val)
+                        except:
+                            pp_vals = pp_val
+                    flg = 0
+        pp(pp_vals, width=100)
+        print('\n')
+
+        proc_json = ""
+        if len(pp_vals) > 0:
+            proc_json = str(pp_vals).replace('\'', '"')
+
+        return proc_json
 
     def TimerProsess(self):
         """定期実行する処理を記述
@@ -190,14 +232,14 @@ class main_opstate:
             self.reset_sec()
         if len(self.min_table) >= self.MIN_INTVL:   # 10分毎の処理
             sql_dict = self.get_sql_dict()
-            self.mysql.sql_insert(sql_dict, "pc_inf_app01")
+            self.mysql.sql_insert(sql_dict, "pc_log") ##################################
             self.min_table = []
 
 
 #-----------------
 recSTART = time.time()  # 処理時間計測スタート
-MAIN_APP = main_opstate(1)  # クラス定義とインターバル指定
+MAIN_APP = main_opstate(5)  # クラス定義とインターバル指定
 MAIN_APP.get_spec()  # PCスペック取得
-MAIN_APP.mysql.sql_insert(  # インストールアプリ一覧の取得
-    func_InsApp.InsApps(), "installed_apps")
+# MAIN_APP.mysql.sql_insert(  # インストールアプリ一覧の取得
+#     func_InsApp.InsApps(), "installed_apps")
 MAIN_APP.scheduler(MAIN_APP.TimerProsess, False)  # インターバル処理
