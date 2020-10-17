@@ -1,3 +1,6 @@
 module/__pycache__/getDir.cpython-38.pyc
 module/__pycache__/getFilePath.cpython-38.pyc
 module/__pycache__/getPath.cpython-38.pyc
+.vscode/.ropeproject/config.py
+.vscode/.ropeproject/objectdb
+module/__pycache__/ini_parser.cpython-38.pyc

@@ -1,8 +1,6 @@
 
-
 import wx
 import os
-
 
 class getPath:
     def __init__(self):
