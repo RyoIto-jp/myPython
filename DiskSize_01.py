@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""
+ACS様提供の各サーバーのドライブ容量情報(.txt)をパースして、
+MySQLへINSERTする。
+"""
+
 from pprint import pprint as pp
 import func_mysql
 import datetime
@@ -22,6 +27,8 @@ def getText(f_path, sql_statement):
 
 
 if __name__ == "__main__":
+    # Init Variables
+    # Set Const
     data_row = []
     record_time = datetime.datetime.now().strftime("%Y/%m/%d-%H:%M:%S")
     sql_statement = 'INSERT INTO `disk_size` ( `record_time`,'
