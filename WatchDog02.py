@@ -72,6 +72,7 @@ if __name__ == '__main__':
     #Pathの取得
     cPath = getPath()
     myDir = cPath.getDir()
+    ini_dir = cPath.ini_dir
     print('監視フォルダを' + myDir + 'に設定します')
 
     #インスタンス作成
